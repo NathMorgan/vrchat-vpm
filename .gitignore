@@ -1,0 +1,12 @@
+# Flatpak Builder directories
+/.flatpak/
+/builddir/
+/repo/
+
+# IDE
+.vscode/
+.idea/
+
+# OS / tooling
+.DS_Store
+Thumbs.db

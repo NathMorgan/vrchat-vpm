@@ -1,0 +1,36 @@
+id: net.tuqiri.vrchat.vpm
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.dotnet8
+build-options:
+  prepend-path: "/usr/lib/sdk/dotnet8/bin"
+  append-ld-library-path: "/usr/lib/sdk/dotnet8/lib"
+  prepend-pkg-config-path: "/usr/lib/sdk/dotnet8/lib/pkgconfig"
+command: vpm
+finish-args:
+  - --env=DOTNET_ROOT=/app/lib/dotnet
+  - --share=network
+  - --filesystem=host:create
+
+modules:
+  - name: dotnet
+    buildsystem: simple
+    build-commands:
+      - /usr/lib/sdk/dotnet8/bin/install.sh
+
+  - name: vpm-cli
+    buildsystem: simple
+    sources:
+      - type: file
+        url: https://globalcdn.nuget.org/packages/vrchat.vpm.cli.0.1.28.nupkg
+        sha256: 3f3f0a0698e6a73c7eea00f89ea195044a79cf8517ea116a6471b2f212420f89
+        dest-filename: vrchat.vpm.cli.0.1.28.nupkg
+    build-commands:
+      - mkdir -p local-nuget
+      - install -m644 vrchat.vpm.cli.0.1.28.nupkg local-nuget/
+      - mkdir -p /app/bin/
+      - dotnet tool install --add-source local-nuget/ --version 0.1.28 --tool-path ./tool-bin vrchat.vpm.cli
+      - install -Dm755 tool-bin/* /app/bin/
+      - cp -r tool-bin/.store /app/bin
